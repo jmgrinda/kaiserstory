@@ -1,8 +1,15 @@
 <?php
 class MediaController extends AppController {
-    function dashboard(){
-        $this->Media->process();
 
+    function removeStopWords($start,$end){
+        $this->Media->removeStopWords($start, $end);
+    }
+
+    function classifiy($start,$end){
+        $this->Media->process($start,$end);
+    }
+
+    function dashboard(){
         $totalObama =$this->Media->find('count',array('conditions' => array('Media.politician_name' => 'Obama')));
         $posObama =$this->Media->find('count',array('conditions' => array('Media.politician_name' => 'Obama', 'Media.posorneg' => '0')));
         $negObama =$this->Media->find('count',array('conditions' => array('Media.politician_name' => 'Obama', 'Media.posorneg' => '1')));

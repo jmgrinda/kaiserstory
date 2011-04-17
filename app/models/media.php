@@ -1,9 +1,49 @@
 <?php
 class Media extends AppModel {
 
-	function process () {
+function removeStopWords($start, $end){
+       $stopWords = array('a','about','above','across','after','again','against','all','almost','alone','along','already','also','although','always','among','an',
+        'and','another','any','anybody','anyone','anything','anywhere','are','area','areas','around','as','ask','asked','asking','asks','at',
+        'away','b','back','backed','backing','backs','be','became','because','become','becomes','been','before','began','behind','being','beings',
+        'best','better','between','big','both','but','by','c','came','can','cannot','case','cases','certain','certainly','clear','clearly','come',
+        'could','d','did','differ','different','differently','do','does','done','down','downed','downing','downs','during','e','each','early',
+        'either','end','ended','ending','ends','enough','even','evenly','ever','every','everybody','everyone','everything','everywhere','f','face',
+        'faces','fact','facts','far','felt','few','find','finds','first','for','four','from','full','fully','further','furthered','furthering',
+        'furthers','g','gave','general','generally','get','gets','give','given','gives','go','going','good','goods','got','great','greater',
+        'greatest','group','grouped','grouping','groups','h','had','has','have','having','he','her','here','herself','high','higher','highest',
+        'him','himself','his','how','however','i','if','important','in','interest','interested','interesting','interests','into','is','it','its',
+        'itself','j','just','k','keep','keeps','kind','knew','know','known','knows','l','large','largely','last','later','latest','least','less',
+        'let','lets','like','likely','long','longer','longest','m','made','make','making','man','many','may','me','member','members','men','might','more',
+        'most','mostly','mr','mrs','much','must','my','myself','n','necessary','need','needed','needing','needs','never','new','newer','newest','next',
+        'no','nobody','non','noone','not','nothing','now','nowhere','number','numbers','o','of','off','often','old','older','oldest','on','once',
+        'one','only','open','opened','opening','opens','or','order','ordered','ordering','orders','other','others','our','out','over','p','part','parted',
+        'parting','parts','per','perhaps','place','places','point','pointed','pointing','points','possible','present','presented','presenting','presents',
+        'problem','problems','put','puts','q','quite','r','rather','really','right','room','rooms','s','said','same','saw','say','says','second','seconds',
+        'see','seem','seemed','seeming','seems','sees','several','shall','she','should','show','showed','showing','shows','side','sides','since','small',
+        'smaller','smallest','so','some','somebody','someone','something','somewhere','state','states','still','such','sure','t','take','taken','than',
+        'that','the','their','them','then','there','therefore','these','they','thing','things','think','thinks','this','those','though','thought',
+        'thoughts','three','through','thus','to','today','together','too','took','toward','turn','turned','turning','turns','two','u','under','until',
+        'up','upon','us','use','used','uses','v','very','w','want','wanted','wanting','wants','was','way','ways','we','well','wells','went','were',
+        'what','when','where','whether','which','while','who','whole','whose','why','will','with','within','without','work','worked','working',
+        'works','would','x','y','year','years','yet','you','young','younger','youngest','your','yours','z');
 
-        $stopWords = array('a','about','above','across','after','again','against','all','almost','alone','along','already','also','although','always','among','an',
+        $content = $this->find('all',array('fields' => array('Media.id', 'Media.content')));
+        $result = array();
+        for($n=$start; $n<$end; $n++){
+            $contentArray = explode(" ", $content[$n]['Media']['content']);
+            $newContent = implode(" ",array_diff($contentArray,$stopWords));
+            array_push($result,array('Media'=>array(
+                                'id'=>$content[$n]['Media']['id'],
+                                'content'=>$newContent
+                            )));
+        }
+        $this->save($result);
+}
+
+
+function process ($start, $end) {
+
+        $stopWords = array('a','about','above','across','after','again','against','all', 'allegedly', 'almost','alone','along','already','also','although','always','among','an',
         'and','another','any','anybody','anyone','anything','anywhere','are','area','areas','around','as','ask','asked','asking','asks','at',
         'away','b','back','backed','backing','backs','be','became','because','become','becomes','been','before','began','behind','being','beings',
         'best','better','between','big','both','but','by','c','came','can','cannot','case','cases','certain','certainly','clear','clearly','come',
@@ -32,33 +72,35 @@ class Media extends AppModel {
         'Brilliant', 'Caring', 'Cautious', 'Cheerful', 'Clever', 'Cognizant','Comical', 'Compassionate','Content', 'Cool', 'Coping', 'Cordial',
         'Creative','Curious', 'Dainty','Delight','Devoted','Disciplined','Driven', 'Dutiful', 'Dynamic', 'Elated', 'Enraged', 'Enthused',
         'Enthusiastic', 'Excited', 'Generous', 'Gentle', 'Grateful', 'Gratified','Forgiving', 'Gay', 'Impartial','Inspired', 'Instinctive','Intuitive',
-        'Innocent', 'Inquisitive','Happy',  'Heroic', 'Honest', 'Hopeful',
+        'Innocent', 'Inquisitive','Happy', 'Heroic', 'Honest', 'Hopeful',
         'Joyful','Kind','Lively', 'Loving', 'Lucky', 'Motivated', 'Natural', 'Nurturing', 'Optimistic', 'Outstanding', 'Patient', 'Perceptive',
         'Perky', 'Positive', 'Powerful', 'Pride','Realistic', 'Relaxed', 'Reliable', 'Relief', 'Repentant', 'Restrained', 'Reverent',
         'Satisfy', 'Sensitive', 'Sentimental', 'Skillful','Sure', 'Sweet', 'Tame','Tender','Understood', 'Victorious', 'Valiant', 'Wise', 'Wonder',
         'Worthy','Vocal','youthful');
 
 
-        $negativeWords = array('Abandonment', 'Addictive', 'Aggravate', 'Aggressive', 'Agitated',  'Angry', 'Angst', 'Annoyed',  'Anxiety',
-        'Arrogance', 'Ashamed', 'Authoritative',  'Awful','Belligerent', 'Bitter', 'Blue', 'Blunt',  'Bored',  'Brutal', 'Bullying', 'Callous',
-        'Combative',  'Conflicted', 'Contemptuous', 'Contrary', 'Covetous', 'Cranky', 'Cross', 'Cruelty',
-        'Defeated', 'Defiant', 'Dejected', 'Dependent', 'Depressed', 'Despair',  'Disagreeable', 'Discontent', 'Disgust', 'Disturbed', 'Doubtful',
+        $negativeWords = array('Abandonment', 'Addictive', 'Aggravate', 'Aggressive', 'Agitated', 'Angry', 'Angst', 'Annoyed', 'Anxiety',
+        'Arrogance', 'Ashamed', 'Authoritative', 'Awful','Belligerent', 'Bitter', 'Blue', 'Blunt', 'Bored', 'Brutal', 'Bullying', 'Callous',
+        'Combative', 'Conflicted', 'Contemptuous', 'Contrary', 'Covetous', 'Cranky', 'Cross', 'Cruelty',
+        'Defeated', 'Defiant', 'Dejected', 'Dependent', 'Depressed', 'Despair', 'Disagreeable', 'Discontent', 'Disgust', 'Disturbed', 'Doubtful',
         'Envy', 'Evil','Fear', 'Fierce', 'Frustrated', 'Furious', 'Greedy', 'Grieving', 'Harsh', 'Hatred', 'Haughty', 'Horror', 'Hostile',
         'Ignored', 'Impatient', 'Impulsive', 'Inconsiderate', 'Insensitivity', 'Intolerance', 'Irritate', 'Isolated', 'Jealous',
         'Lonely', 'Lost', 'Mad', 'Malice', 'Mean', 'Meek', 'Mollified', 'Nasty', 'Naughty', 'Negative',
         'Obnoxious', 'Obstinate', 'Outraged', 'Pain', 'Panic', 'Perturb', 'Pessimistic', 'Pity',
-        'Quirky', 'Quivering', 'Rage', 'Raw', 'Scornful', 'Reluctant', 'Repulsive', 'Resent', 'Resigned', 'Rough', 'Rude',
+        'Quirky', 'Quivering', 'Racist', 'Rage', 'Raw', 'Scornful', 'Reluctant', 'Repulsive', 'Resent', 'Resigned', 'Rough', 'Rude',
         'Severe', 'Shame', 'Sick', 'Silly', 'Sorrow', 'Spite', 'Stubborn', 'Surprise','Tense', 'Terrified', 'Terse', 'Tired', 'Unbalanced',
-        'Uncertain', 'Unhappy','Vindictive', 'Violent',  'Vociferous', 'Wary', 'Weary', 'Wicked', 'Worrier', 'Wrath');
+        'Uncertain', 'Unhappy','Vindictive', 'Violent', 'Vociferous', 'Wary', 'Weary', 'Wicked', 'Worrier', 'Wrath');
 
         $content = $this->find('all',array('fields' => array('Media.id', 'Media.content')));
         $lists = array($positiveWords, $negativeWords);
-        for($n=0; $n<count($content); $n++){
+        for($n=$start; $n<$end; $n++){
             $frequency = array(
                 array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
                 array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
             );
+
             $contentArray = explode(" ", $content[$n]['Media']['content']);
+
             for($l=0; $l<count($lists);$l++){
                 $emotions = $lists[$l];
                 for($i=0;$i<count($contentArray);$i++){
@@ -84,6 +126,7 @@ class Media extends AppModel {
                     }
                 }
             }
+
             if($max > 0){
                 $result=array('Media'=>array(
                                     'id'=>$content[$n]['Media']['id'],
@@ -92,7 +135,9 @@ class Media extends AppModel {
                                 ));
                 $this->save($result);
             }
+
         }
+
     }
 
 
@@ -340,16 +385,16 @@ class Media extends AppModel {
     }
 
     /**
-     *  Performs the function of step 4 of the Porter Stemming Algorithm.
-     *
-     *  Step 4 works similarly to steps 3 and 2, above, though it removes
-     *  the endings in the context of VCVC (vowel-consonant-vowel-consonant
-     *  combinations).
-     *
-     *  @param string $word Word to reduce
-     *  @access private
-     *  @return string Reduced word
-     */
+* Performs the function of step 4 of the Porter Stemming Algorithm.
+*
+* Step 4 works similarly to steps 3 and 2, above, though it removes
+* the endings in the context of VCVC (vowel-consonant-vowel-consonant
+* combinations).
+*
+* @param string $word Word to reduce
+* @access private
+* @return string Reduced word
+*/
     function _step_4( $word ){
         switch ( substr($word, -2, 1) ) {
             case 'a':
@@ -441,15 +486,15 @@ class Media extends AppModel {
     }
 
     /**
-     *  Performs the function of step 5 of the Porter Stemming Algorithm.
-     *
-     *  Step 5 removes a final "-e" and changes "-ll" to "-l" in the context
-     *  of VCVC (vowel-consonant-vowel-consonant combinations).
-     *
-     *  @param string $word Word to reduce
-     *  @access private
-     *  @return string Reduced word
-     */
+* Performs the function of step 5 of the Porter Stemming Algorithm.
+*
+* Step 5 removes a final "-e" and changes "-ll" to "-l" in the context
+* of VCVC (vowel-consonant-vowel-consonant combinations).
+*
+* @param string $word Word to reduce
+* @access private
+* @return string Reduced word
+*/
     function _step_5( $word ){
         if ( substr($word, -1) == 'e' ) {
             $short = substr($word, 0, -1);
@@ -470,20 +515,20 @@ class Media extends AppModel {
     }
 
     /**
-     *  Checks that the specified letter (position) in the word is a consonant.
-     *
-     *  Handy check adapted from the ANSI C program. Regular vowels always return
-     *  FALSE, while "y" is a special case: if the prececing character is a vowel,
-     *  "y" is a consonant, otherwise it's a vowel.
-     *
-     *  And, if checking "y" in the first position and the word starts with "yy",
-     *  return true even though it's not a legitimate word (it crashes otherwise).
-     *
-     *  @param string $word Word to check
-     *  @param integer $pos Position in the string to check
-     *  @access public
-     *  @return boolean
-     */
+* Checks that the specified letter (position) in the word is a consonant.
+*
+* Handy check adapted from the ANSI C program. Regular vowels always return
+* FALSE, while "y" is a special case: if the prececing character is a vowel,
+* "y" is a consonant, otherwise it's a vowel.
+*
+* And, if checking "y" in the first position and the word starts with "yy",
+* return true even though it's not a legitimate word (it crashes otherwise).
+*
+* @param string $word Word to check
+* @param integer $pos Position in the string to check
+* @access public
+* @return boolean
+*/
     function is_consonant( $word, $pos ){
         // Sanity checking $pos
         if ( abs($pos) > strlen($word) ) {
@@ -520,17 +565,17 @@ class Media extends AppModel {
     }
 
     /**
-     *  Counts (measures) the number of vowel-consonant occurences.
-     *
-     *  Based on the algorithm; this handy function counts the number of
-     *  occurences of vowels (1 or more) followed by consonants (1 or more),
-     *  ignoring any beginning consonants or trailing vowels. A legitimate
-     *  VC combination counts as 1 (ie. VCVC = 2, VCVCVC = 3, etc.).
-     *
-     *  @param string $word Word to measure
-     *  @access public
-     *  @return integer
-     */
+* Counts (measures) the number of vowel-consonant occurences.
+*
+* Based on the algorithm; this handy function counts the number of
+* occurences of vowels (1 or more) followed by consonants (1 or more),
+* ignoring any beginning consonants or trailing vowels. A legitimate
+* VC combination counts as 1 (ie. VCVC = 2, VCVCVC = 3, etc.).
+*
+* @param string $word Word to measure
+* @access public
+* @return integer
+*/
     function count_vc( $word ){
         $m = 0;
         $length = strlen($word);
@@ -553,17 +598,17 @@ class Media extends AppModel {
     }
 
     /**
-     *  Checks for a specific consonant-vowel-consonant condition.
-     *
-     *  This function is named directly from the original algorithm. It
-     *  looks the last three characters of the word ending as
-     *  consonant-vowel-consonant, with the final consonant NOT being one
-     *  of "w", "x" or "y".
-     *
-     *  @param string $word Word to check
-     *  @access private
-     *  @return boolean
-     */
+* Checks for a specific consonant-vowel-consonant condition.
+*
+* This function is named directly from the original algorithm. It
+* looks the last three characters of the word ending as
+* consonant-vowel-consonant, with the final consonant NOT being one
+* of "w", "x" or "y".
+*
+* @param string $word Word to check
+* @access private
+* @return boolean
+*/
     function _o( $word ){
         if ( strlen($word) >= 3 ) {
             if ( $this->is_consonant($word, -1) && !$this->is_consonant($word, -2) &&
@@ -579,16 +624,16 @@ class Media extends AppModel {
     }
 
     /**
-     *  Replaces suffix, if found and word measure is a minimum count.
-     *
-     *  @param string $word Word to check and modify
-     *  @param string $suffix Suffix to look for
-     *  @param string $replace Suffix replacement
-     *  @param integer $m Word measure value that the word must be greater
-     *                    than to replace
-     *  @access private
-     *  @return boolean
-     */
+* Replaces suffix, if found and word measure is a minimum count.
+*
+* @param string $word Word to check and modify
+* @param string $suffix Suffix to look for
+* @param string $replace Suffix replacement
+* @param integer $m Word measure value that the word must be greater
+* than to replace
+* @access private
+* @return boolean
+*/
     function _replace( &$word, $suffix, $replace, $m = 0 ){
         $sl = strlen($suffix);
         if ( substr($word, -$sl) == $suffix ) {
